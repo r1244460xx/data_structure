@@ -5,6 +5,7 @@ typedef struct Tree {
     struct Tree* left;
     struct Tree* right;
     int data;
+    int height;
 }tree_t;
 
 typedef struct Node {
@@ -49,12 +50,14 @@ void binary_insert(tree_t *node, tree_t *tree) {
     if(node->data > tree->data) {
         if(node->left == NULL) {
             node->left = tree;
+            tree->height = level(tree);
         }else {
             binary_insert(node->left, tree);
         }
     }else {
         if(node->right == NULL) {
             node->right = tree;
+            tree->height = level(tree);
         }else {
             binary_insert(node->right, tree);
         }
@@ -66,11 +69,13 @@ void insert(tree_t **ptr, int data) {
     tree->data = data;
     tree->left = NULL;
     tree->right = NULL;
+    tree->height = 0;
     if(*ptr==NULL) {
         *ptr = tree;
     }else {
         binary_insert(*ptr, tree);
     }
+    
 }
 
 tree_t* find_min(tree_t* root) {
@@ -142,7 +147,7 @@ void BFS(tree_t* ptr) {
     enqueue(&queue, ptr);
     while(queue.front != NULL) {
         tree_t* tree = dequeue(&queue);
-        printf("%d ", tree->data); //BFS has no prefix infix postfix
+        printf("%d:%d ", tree->height, tree->data); //BFS has no prefix infix postfix
         if(tree->left!=NULL)
             enqueue(&queue, tree->left);
         if(tree->right!=NULL)
@@ -170,6 +175,7 @@ int main() {
     insert(&root, 47);
     insert(&root, 91);
     insert(&root, 33);
+    insert(&root, 44);
     DFS(root);
     printf("\n");
     BFS(root);
