@@ -133,8 +133,11 @@ tree_t* find_max(tree_t* root) {
     return root;
 }
 
-/*tree_t* binary_delete(tree_t* ptr, int data) {
-    if(ptr->data == data) {
+tree_t* delete(tree_t* ptr, int data) {
+    if(ptr == NULL) {
+        printf("No tree\n");
+        return NULL;
+    }else if(ptr->data == data){
         if(ptr->left == NULL && ptr->right==NULL) {
             free(ptr);
             return NULL;
@@ -149,25 +152,21 @@ tree_t* find_max(tree_t* root) {
         }else {
             tree_t* new = find_max(ptr->left);
             ptr->data = new->data;
-            ptr->left = binary_delete(ptr->left, ptr->data);
+            ptr->left = delete(ptr->left, ptr->data);
+            ptr->height = level(ptr);
+            ptr = self_balance(ptr);
             return ptr;
         }   
     }else {
         if(ptr->left != NULL)
-            ptr->left = binary_delete(ptr->left, data);
+            ptr->left = delete(ptr->left, data);
         if(ptr->right != NULL)
-            ptr->right = binary_delete(ptr->right, data);
+            ptr->right = delete(ptr->right, data);
+        ptr->height = level(ptr);
+        ptr = self_balance(ptr);
         return ptr;
-    } 
-}
-
-tree_t* delete(tree_t* ptr, int data) {
-    if(ptr == NULL)
-        return NULL;
-    else {
-        //return binary_delete(*ptr, data);
     }
-}*/
+}
 
 void DFS(tree_t* ptr) {
     if(ptr==NULL) {
@@ -190,7 +189,7 @@ void BFS(tree_t* ptr) {
     enqueue(&queue, ptr);
     while(queue.front != NULL) {
         tree_t* tree = dequeue(&queue);
-        printf("%d:%d ", tree->height, tree->data); //BFS has no prefix infix postfix
+        printf("%d ", tree->data); //BFS has no prefix infix postfix
         if(tree->left!=NULL)
             enqueue(&queue, tree->left);
         if(tree->right!=NULL)
@@ -208,8 +207,11 @@ int main() {
     root = insert(root, 30);
     root = insert(root, 27);
     root = insert(root, 45);
-    //DFS(root);
-    //printf("\n");
+    root = delete(root, 10);
+    root = delete(root, 27);
+    root = delete(root, 25);
+    DFS(root);
+    printf("\n");
     BFS(root);
     return 0;
 }
