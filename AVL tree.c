@@ -46,36 +46,77 @@ tree_t* dequeue(queue_t* ptr) {
     }
 }
 
-void binary_insert(tree_t *node, tree_t *tree) {
-    if(node->data > tree->data) {
-        if(node->left == NULL) {
-            node->left = tree;
-            tree->height = level(tree);
-        }else {
-            binary_insert(node->left, tree);
-        }
+int level(tree_t* ptr) {
+    if(ptr==NULL) {
+        return -1;
     }else {
-        if(node->right == NULL) {
-            node->right = tree;
-            tree->height = level(tree);
-        }else {
-            binary_insert(node->right, tree);
-        }
-    } 
+        int left = level(ptr->left);
+        int right = level(ptr->right);
+        return 1+(left>right?left:right);
+    }
 }
 
-void insert(tree_t **ptr, int data) {
-    tree_t* tree = (tree_t*)malloc(sizeof(tree_t));
-    tree->data = data;
-    tree->left = NULL;
-    tree->right = NULL;
-    tree->height = 0;
-    if(*ptr==NULL) {
-        *ptr = tree;
-    }else {
-        binary_insert(*ptr, tree);
+int balance(tree_t* ptr) {
+    int left, right;
+    if(ptr->left != NULL) {
+        left = ptr->left->height;
+    }else 
+        left = -1;
+    if(ptr->right != NULL) {
+        right = ptr->right->height;
+    }else 
+        right = -1;
+    return left - right;
+}
+
+tree_t* left_rotation(tree_t* ptr) {
+    tree_t* temp = ptr->right;
+    ptr->right = ptr->right->left;
+    temp->left = ptr;
+    return temp;
+}
+
+tree_t* right_rotation(tree_t* ptr) {
+    tree_t* temp = ptr->left;
+    ptr->left = ptr->left->right;
+    temp->right = ptr;
+    return temp;
+}
+
+tree_t* self_balance(tree_t* ptr) {
+    int bf = balance(ptr);
+    if(bf > 1) {
+        if(balance(ptr->left)<0) { //LR
+            ptr->left =  left_rotation(ptr->left);
+        }
+        ptr = right_rotation(ptr);
+    }else if(bf < -1) {
+        if(balance(ptr->right)>0) { //RL
+            ptr->right =  right_rotation(ptr->right);
+        }
+        ptr = left_rotation(ptr);
     }
-    
+    return ptr;
+}
+
+tree_t* insert(tree_t *ptr, int data) {
+    if(ptr==NULL) {
+        tree_t* tree = (tree_t*)malloc(sizeof(tree_t));
+        tree->data = data;
+        tree->left = NULL;
+        tree->right = NULL;
+        tree->height = 0;
+        return tree;
+    }else {
+        if(ptr->data > data) {
+            ptr->left = insert(ptr->left, data);
+        }else {
+            ptr->right = insert(ptr->right, data);
+        }
+    }
+    ptr->height = level(ptr);
+    ptr = self_balance(ptr);    
+    return ptr;
 }
 
 tree_t* find_min(tree_t* root) {
@@ -92,7 +133,7 @@ tree_t* find_max(tree_t* root) {
     return root;
 }
 
-tree_t* binary_delete(tree_t* ptr, int data) {
+/*tree_t* binary_delete(tree_t* ptr, int data) {
     if(ptr->data == data) {
         if(ptr->left == NULL && ptr->right==NULL) {
             free(ptr);
@@ -120,13 +161,13 @@ tree_t* binary_delete(tree_t* ptr, int data) {
     } 
 }
 
-void delete(tree_t** ptr, int data) {
-    if((*ptr)==NULL)
-        return;
+tree_t* delete(tree_t* ptr, int data) {
+    if(ptr == NULL)
+        return NULL;
     else {
-        *ptr = binary_delete(*ptr, data);
+        //return binary_delete(*ptr, data);
     }
-}
+}*/
 
 void DFS(tree_t* ptr) {
     if(ptr==NULL) {
@@ -139,8 +180,10 @@ void DFS(tree_t* ptr) {
 }
 
 void BFS(tree_t* ptr) {
-    if(ptr == NULL)
+    if(ptr == NULL) {
+        printf("No node\n");
         return;
+    }
     queue_t queue;
     queue.front = NULL;
     queue.rear = NULL;
@@ -156,28 +199,17 @@ void BFS(tree_t* ptr) {
     printf("\n");
 }   
 
-int level(tree_t* ptr) {
-    if(ptr==NULL) {
-        return 0;
-    }else {
-        int left = level(ptr->left);
-        int right = level(ptr->right);
-        return 1+(left>right?left:right);
-    }
-}
-
 int main() {
     tree_t* root = NULL;
-    insert(&root, 67);
-    insert(&root, 23);
-    insert(&root, 73);
-    insert(&root, 11);
-    insert(&root, 47);
-    insert(&root, 91);
-    insert(&root, 33);
-    insert(&root, 44);
-    DFS(root);
-    printf("\n");
+    root = insert(root, 50);
+    root = insert(root, 25);
+    root = insert(root, 90);
+    root = insert(root, 10);
+    root = insert(root, 30);
+    root = insert(root, 27);
+    root = insert(root, 45);
+    //DFS(root);
+    //printf("\n");
     BFS(root);
     return 0;
 }
