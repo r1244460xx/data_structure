@@ -23,19 +23,28 @@ void min_heapify(heap_t* heap, int index) {
     }
 }
 
+
+
 void max_heapify(heap_t* heap, int index) {
-    if(heap->heap[index] < heap->heap[2*index]) {
-        int data = heap->heap[index];
-        heap->heap[index] = heap->heap[2*index];
-        heap->heap[2*index] = data;
-        max_heapify(heap, 2*index);
+    int temp = 0;
+    if(2*index <= heap->size) {
+        if(heap->heap[index]<heap->heap[2*index]) {
+            int data = heap->heap[index];
+            heap->heap[index] = heap->heap[2*index];
+            heap->heap[2*index] = data;
+            temp = 2*index;
+        }
     }
-        
-    if(heap->heap[index] < heap->heap[2*index+1]) {
-        int data = heap->heap[index];
-        heap->heap[index] = heap->heap[2*index+1];
-        heap->heap[2*index+1] = data;
-        max_heapify(heap, 2*index+1);
+    if(2*index+1 <= heap->size) {
+        if(heap->heap[index]<heap->heap[2*index+1]) {
+            int data = heap->heap[index];
+            heap->heap[index] = heap->heap[2*index+1];
+            heap->heap[2*index+1] = data;
+            temp = 2*index+1;
+        }
+    }
+    if(temp!=0) {
+        max_heapify(heap, temp);
     }
 }
 
@@ -54,10 +63,10 @@ void min_heap(heap_t* heap) {
 }
 
 void insert(heap_t* heap, int data) {
-    if(heap->size < MAX_SIZE) {
-        heap->heap[heap->size+1] = data;
-        heap->size++;
-        max_heap(heap);
+    if(heap->size <= MAX_SIZE) {
+        heap->heap[++heap->size] = data;
+        //max_heap(heap);
+        max_heapify(heap, heap->heap[heap->size/2]);
     }
 }
 
