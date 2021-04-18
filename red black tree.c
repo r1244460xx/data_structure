@@ -53,24 +53,40 @@ tree_t* dequeue(queue_t* ptr) {
     }
 }
 
-tree_t* left_rotate(tree_t* tree) {
+void left_rotate(tree_t** root, tree_t* tree) {
     tree_t* temp = tree->right;
-    tree_t* parent_temp = tree->parent;
+    tree_t* parent = tree->parent;
     tree->right = temp->left;
-    temp->left = tree; 
+    if(temp->left!= NULL)
+        temp->left->parent = tree;
+    temp->left = tree;
+    temp->parent = parent;
     tree->parent = temp;
-    temp->parent = parent_temp;
-    return temp;
+    if(parent==NULL) {
+        *root = temp;
+    }else if(parent->left==tree) {
+        parent->left = temp;
+    }else {
+        parent->right = temp;
+    }
 }
 
-tree_t* right_rotate(tree_t* tree) {
+void right_rotate(tree_t** root, tree_t* tree) {
     tree_t* temp = tree->left;
-    tree_t* parent_temp = tree->parent;
+    tree_t* parent = tree->parent;
     tree->left = temp->right;
+    if(temp->right!= NULL)
+        temp->right->parent = tree;
     temp->right = tree;
-    tree->parent = temp; 
-    temp->parent = parent_temp;
-    return temp;
+    temp->parent = parent;
+    tree->parent = temp;
+    if(parent==NULL) {
+        *root = temp;
+    }else if(parent->left==tree) {
+        parent->left = temp;
+    }else {
+        parent->right = temp;
+    }
 }
 
 int level(tree_t* tree) {
@@ -91,6 +107,7 @@ int balance(tree_t* tree) {
 
 void update(tree_t** root, tree_t* tree) {
     while(tree->parent != NULL && tree->parent->color==RED) {
+        printf("test\n");
         tree_t* parent = tree->parent;
         tree_t* grandpa = tree->parent->parent;
         if(parent == grandpa->left) {
@@ -101,24 +118,13 @@ void update(tree_t** root, tree_t* tree) {
                 tree = grandpa;  //jump to parent
             }else { //uncle is BLACK
                 if(tree == parent->right) { //new node is on right
-                    grandpa->left = left_rotate(parent);
+                    left_rotate(root, parent);
                     parent = grandpa->left;
                     tree = parent->left;
                 }
                 grandpa->color = RED;
                 parent->color = BLACK;
-
-                if(grandpa!=*root) {
-                    if(grandpa->parent->left == grandpa) {
-                        tree_t* temp = grandpa->parent;
-                        temp->left = right_rotate(grandpa);
-                    }else {
-                        tree_t* temp = grandpa->parent;
-                        temp->right = right_rotate(grandpa);
-                    }
-                }else {
-                    *root = right_rotate(grandpa);
-                }
+                right_rotate(root, grandpa);
             }
         }else { //parent == grandpa->right
             if(grandpa->left != NULL && grandpa->left->color==RED) {
@@ -128,24 +134,13 @@ void update(tree_t** root, tree_t* tree) {
                 tree = grandpa;  //jump to parent
             }else { //uncle is BLACK
                 if(tree == parent->left) { //new node is on right
-                    grandpa->right = right_rotate(parent);
+                    right_rotate(root, parent);
                     parent = grandpa->right;
                     tree = parent->right;
                 }
                 grandpa->color = RED;
                 parent->color = BLACK;
-                
-                if(grandpa!=*root) {
-                    if(grandpa->parent->left == grandpa) {
-                        tree_t* temp = grandpa->parent;
-                        temp->left = left_rotate(grandpa);
-                    }else {
-                        tree_t* temp = grandpa->parent;
-                        temp->right = left_rotate(grandpa);
-                    }
-                }else { //grandpa
-                    *root = left_rotate(grandpa);
-                }
+                left_rotate(root, grandpa);
             }
         }
     }    
@@ -244,10 +239,11 @@ void BFS(tree_t* ptr) {
 
 int main() {
     tree_t* root = NULL;
-    RBT_insert(&root, 3);
-    RBT_insert(&root, 21);
-    RBT_insert(&root, 32);
-    RBT_insert(&root, 15);
+    RBT_insert(&root, 10);
+    RBT_insert(&root, 20);
+    RBT_insert(&root, 30);
+    RBT_insert(&root, 40);
+    RBT_insert(&root, 50);
     DFS(root);
     printf("\n");
     BFS(root);
