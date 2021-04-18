@@ -105,7 +105,7 @@ int balance(tree_t* tree) {
     return left - right;
 }
 
-void update(tree_t** root, tree_t* tree) {
+void insert_update(tree_t** root, tree_t* tree) {
     while(tree->parent != NULL && tree->parent->color==RED) {
         printf("test\n");
         tree_t* parent = tree->parent;
@@ -204,7 +204,7 @@ void RBT_insert(tree_t** root, int data) {
     node->right = NULL;
     node->parent = NULL;
     *root = insert(*root, node);
-    update(root, node);
+    insert_update(root, node);
 }
 
 void DFS(tree_t* ptr) {
